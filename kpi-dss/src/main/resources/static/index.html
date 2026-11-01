@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HRM KPI DSS - Quản Trị Nhân Sự & Đánh Giá KPI</title>
+    <!-- Google Font & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --primary-light: #eff6ff;
+            --success: #10b981;
+            --success-light: #ecfdf5;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-500: #64748b;
+            --gray-700: #334155;
+            --gray-900: #0f172a;
+            --radius: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: #f8fafc;
+            color: var(--gray-900);
+            min-height: 100vh;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: #ffffff;
+            border-bottom: 1px solid var(--gray-200);
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .nav-logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #2563eb, #3b82f6);
+            color: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+        }
+        .nav-title h1 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+        .nav-title p {
+            font-size: 0.8rem;
+            color: var(--gray-500);
+        }
+        .system-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--success-light);
+            color: #065f46;
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: 1px solid #a7f3d0;
+        }
+        .system-badge .dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulse 1.8s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        /* Container */
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 28px 24px;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+        .stat-card {
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius);
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.04);
+        }
+        .stat-info p {
+            font-size: 0.85rem;
+            color: var(--gray-500);
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+        .stat-info h3 {
+            font-size: 1.7rem;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+        }
+        .icon-blue { background: #dbeafe; color: #1d4ed8; }
+        .icon-green { background: #d1fae5; color: #047857; }
+        .icon-purple { background: #ede9fe; color: #6d28d9; }
+        .icon-amber { background: #fef3c7; color: #b45309; }
+
+        /* Main Content Card */
+        .card {
+            background: #ffffff;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .card-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+        .card-desc {
+            font-size: 0.85rem;
+            color: var(--gray-500);
+            margin-top: 2px;
+        }
+
+        .card-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .search-box {
+            position: relative;
+        }
+        .search-input {
+            padding: 9px 14px 9px 36px;
+            font-size: 0.9rem;
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            width: 260px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .search-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-500);
+            font-size: 0.9rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 16px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            text-decoration: none;
+        }
+        .btn-outline {
+            background: white;
+            border: 1px solid var(--gray-200);
+            color: var(--gray-700);
+        }
+        .btn-outline:hover {
+            background: var(--gray-50);
+            border-color: var(--gray-300);
+        }
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Table */
+        .table-responsive {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+        thead th {
+            background: var(--gray-50);
+            color: var(--gray-500);
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--gray-200);
+        }
+        tbody td {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--gray-100);
+            font-size: 0.92rem;
+            color: var(--gray-700);
+            vertical-align: middle;
+        }
+        tbody tr:hover {
+            background-color: #f8fafc;
+        }
+        .emp-name-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .emp-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: #e0e7ff;
+            color: #3730a3;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+        }
+        .emp-info .name {
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+        .emp-info .username {
+            font-size: 0.8rem;
+            color: var(--gray-500);
+        }
+
+        .badge-status {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+        .status-active {
+            background: var(--success-light);
+            color: #047857;
+        }
+        .status-inactive {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .action-btn {
+            background: #eff6ff;
+            color: var(--primary);
+            border: 1px solid #bfdbfe;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .action-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Empty / Loading State */
+        .state-container {
+            padding: 60px 20px;
+            text-align: center;
+            color: var(--gray-500);
+        }
+        .spinner {
+            border: 3px solid var(--gray-200);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 12px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Modal Details */
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal {
+            background: white;
+            border-radius: 16px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+            animation: modalSlide 0.25s ease-out;
+        }
+        @keyframes modalSlide {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.4rem;
+            cursor: pointer;
+            color: var(--gray-500);
+            line-height: 1;
+        }
+        .modal-close:hover {
+            color: var(--gray-900);
+        }
+        .modal-body {
+            padding: 24px;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .detail-item {
+            background: var(--gray-50);
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--gray-200);
+        }
+        .detail-label {
+            font-size: 0.78rem;
+            color: var(--gray-500);
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+        .detail-value {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navbar -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <div class="nav-logo">HR</div>
+            <div class="nav-title">
+                <h1>HRM KPI DSS</h1>
+                <p>Hệ Thống Quản Trị Nhân Sự & Hỗ Trợ Ra Quyết Định KPI</p>
+            </div>
+        </div>
+        <div class="system-badge" id="server-status">
+            <span class="dot"></span>
+            <span>Hệ thống: Trực tuyến</span>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        
+        <!-- Summary Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-info">
+                    <p>Tổng Nhân Sự</p>
+                    <h3 id="stat-total">--</h3>
+                </div>
+                <div class="stat-icon icon-blue">👥</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-info">
+                    <p>Đang Hoạt Động</p>
+                    <h3 id="stat-active">--</h3>
+                </div>
+                <div class="stat-icon icon-green">✅</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-info">
+                    <p>Độ Tuổi Trung Bình</p>
+                    <h3 id="stat-avg-age">--</h3>
+                </div>
+                <div class="stat-icon icon-purple">📊</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-info">
+                    <p>Cơ Sở Dữ Liệu</p>
+                    <h3 style="font-size: 1.15rem; color: #b45309;">SQL Server</h3>
+                </div>
+                <div class="stat-icon icon-amber">🗄️</div>
+            </div>
+        </div>
+
+        <!-- Employee Table Card -->
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <h2 class="card-title">Danh Sách Nhân Viên</h2>
+                    <p class="card-desc">Dữ liệu được nạp trực tiếp từ SQL Server (Bảng <code>nhan_vien</code>)</p>
+                </div>
+                <div class="card-actions">
+                    <div class="search-box">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" id="searchInput" class="search-input" placeholder="Tìm theo tên, email, username...">
+                    </div>
+                    <button class="btn btn-outline" onclick="loadNhanVien()">🔄 Làm mới</button>
+                    <a href="/api/nhan-vien/danh-sach" target="_blank" class="btn btn-primary">🔗 API JSON</a>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table id="empTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Họ và Tên</th>
+                            <th>Liên Hệ</th>
+                            <th>Giới Tính / Tuổi</th>
+                            <th>Ngày Vào Làm</th>
+                            <th>Trạng Thái</th>
+                            <th>Thao Tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <!-- Loaded dynamically -->
+                    </tbody>
+                </table>
+
+                <div id="loadingState" class="state-container">
+                    <div class="spinner"></div>
+                    <p>Đang tải dữ liệu nhân viên từ database...</p>
+                </div>
+
+                <div id="emptyState" class="state-container" style="display: none;">
+                    <p style="font-size: 2rem; margin-bottom: 8px;">📋</p>
+                    <p>Không tìm thấy nhân viên nào phù hợp.</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal Xem Chi Tiết Nhân Viên -->
+    <div id="detailModal" class="modal-backdrop">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalEmpName">Chi Tiết Nhân Viên</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="detail-grid" id="modalDetails">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let nhanVienList = [];
+
+        // Nạp dữ liệu khi mở trang
+        document.addEventListener('DOMContentLoaded', () => {
+            loadNhanVien();
+            
+            // Xử lý tìm kiếm
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                const keyword = e.target.value.toLowerCase().trim();
+                const filtered = nhanVienList.filter(item => 
+                    (item.hoTen && item.hoTen.toLowerCase().includes(keyword)) ||
+                    (item.email && item.email.toLowerCase().includes(keyword)) ||
+                    (item.tenDangNhap && item.tenDangNhap.toLowerCase().includes(keyword)) ||
+                    (item.soDienThoai && item.soDienThoai.includes(keyword))
+                );
+                renderTable(filtered);
+            });
+        });
+
+        // Gọi API lấy danh sách nhân viên
+        function loadNhanVien() {
+            document.getElementById('loadingState').style.display = 'block';
+            document.getElementById('tableBody').innerHTML = '';
+            document.getElementById('emptyState').style.display = 'none';
+
+            fetch('/api/nhan-vien/danh-sach')
+                .then(res => {
+                    if (!res.ok) throw new Error('Mã lỗi mạng: ' + res.status);
+                    return res.json();
+                })
+                .then(data => {
+                    nhanVienList = data;
+                    document.getElementById('loadingState').style.display = 'none';
+                    updateStats(data);
+                    renderTable(data);
+                })
+                .catch(err => {
+                    document.getElementById('loadingState').style.display = 'none';
+                    document.getElementById('tableBody').innerHTML = `
+                        <tr>
+                            <td colspan="7" style="text-align: center; color: #dc2626; padding: 30px;">
+                                ⚠️ Lỗi kết nối API: ${err.message}. Hãy đảm bảo server đang chạy.
+                            </td>
+                        </tr>
+                    `;
+                });
+        }
+
+        // Cập nhật các thẻ thống kê đầu trang
+        function updateStats(data) {
+            document.getElementById('stat-total').innerText = data.length;
+            const activeCount = data.filter(e => e.trangThaiHoatDong !== false).length;
+            document.getElementById('stat-active').innerText = activeCount;
+
+            if (data.length > 0) {
+                const avgAge = Math.round(data.reduce((acc, cur) => acc + (cur.tuoi || 0), 0) / data.length);
+                document.getElementById('stat-avg-age').innerText = avgAge + ' tuổi';
+            } else {
+                document.getElementById('stat-avg-age').innerText = '0';
+            }
+        }
+
+        // Hiển thị bảng nhân viên
+        function renderTable(data) {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            if (data.length === 0) {
+                document.getElementById('emptyState').style.display = 'block';
+                return;
+            } else {
+                document.getElementById('emptyState').style.display = 'none';
+            }
+
+            data.forEach(emp => {
+                const tr = document.createElement('tr');
+                const initials = emp.hoTen ? emp.hoTen.split(' ').pop().charAt(0).toUpperCase() : '?';
+                const statusBadge = emp.trangThaiHoatDong !== false 
+                    ? '<span class="badge-status status-active">Hoạt động</span>' 
+                    : '<span class="badge-status status-inactive">Tạm khóa</span>';
+
+                tr.innerHTML = `
+                    <td><strong>#${emp.idNhanVien || '--'}</strong></td>
+                    <td>
+                        <div class="emp-name-cell">
+                            <div class="emp-avatar">${initials}</div>
+                            <div class="emp-info">
+                                <div class="name">${emp.hoTen || '--'}</div>
+                                <div class="username">@${emp.tenDangNhap || '--'}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div>${emp.email || '--'}</div>
+                        <div style="font-size: 0.8rem; color: #64748b;">${emp.soDienThoai || '--'}</div>
+                    </td>
+                    <td>${emp.gioiTinh || '--'} - ${emp.tuoi || '--'} tuổi</td>
+                    <td>${emp.ngayVaoLam || '--'}</td>
+                    <td>${statusBadge}</td>
+                    <td>
+                        <button class="action-btn" onclick="viewDetail(${emp.idNhanVien})">Xem KPI / DSS</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Xem chi tiết nhân viên (Modal)
+        function viewDetail(id) {
+            const emp = nhanVienList.find(e => e.idNhanVien === id);
+            if (!emp) return;
+
+            document.getElementById('modalEmpName').innerText = `${emp.hoTen} (#${emp.idNhanVien})`;
+            
+            const detailsHtml = `
+                <div class="detail-item">
+                    <div class="detail-label">Tài khoản</div>
+                    <div class="detail-value">${emp.tenDangNhap || '--'}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Email</div>
+                    <div class="detail-value">${emp.email || '--'}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Số điện thoại</div>
+                    <div class="detail-value">${emp.soDienThoai || '--'}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Giới tính & Tuổi</div>
+                    <div class="detail-value">${emp.gioiTinh || '--'}, ${emp.tuoi || '--'} tuổi</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Ngày vào làm</div>
+                    <div class="detail-value">${emp.ngayVaoLam || '--'}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Tổng năm kinh nghiệm</div>
+                    <div class="detail-value">${emp.tongNamKinhNghiem ?? 0} năm</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Năm tại công ty</div>
+                    <div class="detail-value">${emp.namTaiCongTy ?? 0} năm</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Năm cùng chức vụ</div>
+                    <div class="detail-value">${emp.namCungChucVu ?? 0} năm</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Năm từ khi thăng chức</div>
+                    <div class="detail-value">${emp.namTuKhiThangChuc ?? 0} năm</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Năm với quản lý hiện tại</div>
+                    <div class="detail-value">${emp.namVoiQuanLyHienTai ?? 0} năm</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Khoảng cách đi làm</div>
+                    <div class="detail-value">${emp.khoangCachDiLam ? emp.khoangCachDiLam + ' km' : '--'}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Phòng ban / Chức vụ / Vai trò</div>
+                    <div class="detail-value">PB: ${emp.idPhongBan} | CV: ${emp.idChucVu} | VT: ${emp.idVaiTro}</div>
+                </div>
+            `;
+
+            document.getElementById('modalDetails').innerHTML = detailsHtml;
+            document.getElementById('detailModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('detailModal').style.display = 'none';
+        }
+
+        // Đóng modal khi bấm ra ngoài
+        window.onclick = function(event) {
+            const modal = document.getElementById('detailModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
