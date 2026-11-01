@@ -28,3 +28,4 @@ public class QuyTacDss {
     @Column(name = "de_xuat_quyet_sach", nullable = false, length = 255)
     private String deXuatQuyetSach;
 }
+

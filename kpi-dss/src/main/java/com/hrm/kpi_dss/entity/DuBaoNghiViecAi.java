@@ -32,3 +32,4 @@ public class DuBaoNghiViecAi {
     @Column(name = "ngay_du_bao")
     private LocalDateTime ngayDuBao = LocalDateTime.now();
 }
+

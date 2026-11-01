@@ -10,3 +10,4 @@ import java.util.List;
 public interface ChiTietDanhGiaRepository extends JpaRepository<ChiTietDanhGia, Integer> {
     List<ChiTietDanhGia> findByIdPhieuDanhGia(Integer idPhieuDanhGia);
 }
+

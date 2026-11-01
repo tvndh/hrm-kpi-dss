@@ -13,3 +13,4 @@ public interface DuBaoNghiViecAiRepository extends JpaRepository<DuBaoNghiViecAi
     List<DuBaoNghiViecAi> findByMucDoCanhBao(String mucDoCanhBao);
     List<DuBaoNghiViecAi> findAllByOrderByTyLeRuiRoDesc();
 }
+

@@ -10,3 +10,4 @@ import java.util.Optional;
 public interface KetQuaDssRepository extends JpaRepository<KetQuaDss, Integer> {
     Optional<KetQuaDss> findByIdPhieuDanhGia(Integer idPhieuDanhGia);
 }
+

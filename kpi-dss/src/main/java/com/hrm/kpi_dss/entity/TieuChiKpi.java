@@ -31,3 +31,4 @@ public class TieuChiKpi {
     @Column(name = "mo_ta", length = 255)
     private String moTa;
 }
+

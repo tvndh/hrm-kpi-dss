@@ -21,3 +21,4 @@ public class NhomTieuChi {
     @Column(name = "mo_ta", length = 255)
     private String moTa;
 }
+

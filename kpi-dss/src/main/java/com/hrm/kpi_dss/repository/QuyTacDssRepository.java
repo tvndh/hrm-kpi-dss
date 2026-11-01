@@ -10,3 +10,4 @@ import java.util.List;
 public interface QuyTacDssRepository extends JpaRepository<QuyTacDss, Integer> {
     List<QuyTacDss> findAllByOrderByDiemKpiToiThieuDescDiemNangLucToiThieuDesc();
 }
+

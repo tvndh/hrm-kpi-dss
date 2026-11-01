@@ -10,3 +10,4 @@ import java.util.List;
 public interface KyDanhGiaRepository extends JpaRepository<KyDanhGia, Integer> {
     List<KyDanhGia> findByTrangThai(String trangThai);
 }
+

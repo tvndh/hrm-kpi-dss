@@ -13,3 +13,4 @@ if not defined JAVA_HOME (
 cd /d "%~dp0kpi-dss"
 call mvnw.cmd spring-boot:run
 pause
+

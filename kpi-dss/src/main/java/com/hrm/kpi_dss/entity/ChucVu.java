@@ -25,3 +25,4 @@ public class ChucVu {
     @Column(name = "luong_co_ban", nullable = false, precision = 18, scale = 2)
     private BigDecimal luongCoBan;
 }
+

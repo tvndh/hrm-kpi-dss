@@ -10,3 +10,4 @@ import java.util.List;
 public interface TieuChiKpiRepository extends JpaRepository<TieuChiKpi, Integer> {
     List<TieuChiKpi> findByIdNhomTieuChi(Integer idNhomTieuChi);
 }
+

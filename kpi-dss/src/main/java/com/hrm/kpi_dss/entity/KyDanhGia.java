@@ -28,3 +28,4 @@ public class KyDanhGia {
     @Column(name = "trang_thai", length = 30)
     private String trangThai = "ACTIVE";
 }
+

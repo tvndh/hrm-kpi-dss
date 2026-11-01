@@ -28,3 +28,4 @@ public class KhungNangLuc {
     @Column(name = "diem_chuan", nullable = false, precision = 5, scale = 2)
     private BigDecimal diemChuan;
 }
+

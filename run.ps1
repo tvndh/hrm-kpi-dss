@@ -10,3 +10,4 @@ if (-not $env:JAVA_HOME) {
 
 Set-Location -Path "$PSScriptRoot\kpi-dss"
 .\mvnw.cmd spring-boot:run
+

@@ -38,3 +38,4 @@ public class KetQuaDss {
     @Column(name = "ngay_tinh_toan")
     private LocalDateTime ngayTinhToan = LocalDateTime.now();
 }
+

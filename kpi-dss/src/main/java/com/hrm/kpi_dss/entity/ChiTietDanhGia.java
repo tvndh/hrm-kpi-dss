@@ -49,3 +49,4 @@ public class ChiTietDanhGia {
     @Column(name = "diem_tong_ket", precision = 5, scale = 2)
     private BigDecimal diemTongKet;
 }
+

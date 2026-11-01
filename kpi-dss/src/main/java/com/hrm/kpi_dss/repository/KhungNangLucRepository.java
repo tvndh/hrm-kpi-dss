@@ -10,3 +10,4 @@ import java.util.List;
 public interface KhungNangLucRepository extends JpaRepository<KhungNangLuc, Integer> {
     List<KhungNangLuc> findByIdChucVu(Integer idChucVu);
 }
+

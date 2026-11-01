@@ -25,3 +25,4 @@ public class PhongBan {
     @Column(name = "ngay_tao")
     private LocalDateTime ngayTao = LocalDateTime.now();
 }
+

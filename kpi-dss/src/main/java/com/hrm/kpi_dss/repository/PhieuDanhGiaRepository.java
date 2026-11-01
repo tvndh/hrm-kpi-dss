@@ -13,3 +13,4 @@ public interface PhieuDanhGiaRepository extends JpaRepository<PhieuDanhGia, Inte
     List<PhieuDanhGia> findByIdNhanVien(Integer idNhanVien);
     Optional<PhieuDanhGia> findByIdKyDanhGiaAndIdNhanVien(Integer idKyDanhGia, Integer idNhanVien);
 }
+
