@@ -79,3 +79,4 @@ INSERT INTO dbo.nhan_vien (
 
 PRINT N'==> ĐÃ THÊM THÀNH CÔNG 50 NHÂN VIÊN MẪU VÀO BẢNG NHAN_VIEN!';
 GO
+
