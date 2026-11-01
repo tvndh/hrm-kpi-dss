@@ -34,6 +34,23 @@ buildNumber.properties
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+# Node.js & React Native
+node_modules/
+**/node_modules/
+.expo/
+**/web-build/
+dist/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+pip-log.txt
+
 # IDE & Editors
 .idea/
 *.iml
@@ -50,4 +67,3 @@ buildNumber.properties
 Thumbs.db
 Desktop.ini
 .DS_Store
-

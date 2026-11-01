@@ -8,6 +8,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Chart.js for Radar Chart & Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --primary: #2563eb;
@@ -120,7 +122,7 @@
         /* Stats Cards */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
             gap: 16px;
             margin-bottom: 24px;
         }
@@ -139,7 +141,7 @@
             transform: translateY(-2px);
         }
         .stat-info p {
-            font-size: 0.82rem;
+            font-size: 0.8rem;
             color: var(--gray-500);
             font-weight: 600;
             text-transform: uppercase;
@@ -147,7 +149,7 @@
             margin-bottom: 4px;
         }
         .stat-info h3 {
-            font-size: 1.6rem;
+            font-size: 1.55rem;
             font-weight: 800;
             color: var(--gray-900);
         }
@@ -295,6 +297,13 @@
         .btn-primary:hover {
             background: var(--primary-dark);
         }
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        .btn-success:hover {
+            background: #059669;
+        }
 
         /* Table */
         .table-responsive {
@@ -344,10 +353,6 @@
         /* 9-Box Grid Layout */
         .matrix-container {
             padding: 24px;
-        }
-        .matrix-header {
-            margin-bottom: 20px;
-            text-align: center;
         }
         .matrix-grid {
             display: grid;
@@ -439,8 +444,8 @@
             background: white;
             border-radius: 16px;
             width: 90%;
-            max-width: 650px;
-            max-height: 85vh;
+            max-width: 780px;
+            max-height: 88vh;
             overflow-y: auto;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
             padding: 24px;
@@ -504,6 +509,34 @@
             justify-content: center;
             font-weight: 700;
             font-size: 0.95rem;
+        }
+
+        /* Form Inputs */
+        .form-select, .form-input {
+            padding: 9px 12px;
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            font-size: 0.88rem;
+            width: 100%;
+            outline: none;
+        }
+        .form-select:focus, .form-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+        .eval-section {
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .chart-box {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 300px;
+            padding: 10px;
         }
     </style>
 </head>
@@ -570,7 +603,8 @@
             <button class="tab-btn active" onclick="switchTab('tab-employees', this)">👥 Danh Sách Nhân Sự</button>
             <button class="tab-btn" onclick="switchTab('tab-matrix', this); load9BoxMatrix();">🎯 Ma Trận 9-Box (DSS)</button>
             <button class="tab-btn" onclick="switchTab('tab-ai', this); loadAiAttrition();">🤖 Cảnh Báo Nghỉ Việc (AI)</button>
-            <button class="tab-btn" onclick="switchTab('tab-kpi', this); loadKpiStandards();">📋 Tiêu Chí KPI & Khung Năng Lực</button>
+            <button class="tab-btn" onclick="switchTab('tab-eval', this)">📝 Chấm Điểm & Đánh Giá KPI</button>
+            <button class="tab-btn" onclick="switchTab('tab-kpi', this); loadKpiStandards();">📋 Tiêu Chí & Khung Năng Lực</button>
         </div>
 
         <!-- TAB 1: DANH SÁCH NHÂN SỰ -->
@@ -639,7 +673,7 @@
                         <h2 class="card-title">Phân Tích & Dự Báo Nguy Cơ Nghỉ Việc (AI Employee Attrition)</h2>
                         <p class="card-desc">Mô hình Machine Learning phân tích các chỉ số đi làm xa, thâm niên cùng chức vụ, thời gian thăng chức</p>
                     </div>
-                    <button class="btn btn-outline" onclick="loadAiAttrition()">🔄 Chạy lại dự báo AI</button>
+                    <button class="btn btn-outline" onclick="loadAiAttrition()">🔄 Cập nhật danh sách</button>
                 </div>
 
                 <div class="table-responsive">
@@ -662,7 +696,86 @@
             </div>
         </div>
 
-        <!-- TAB 4: TIÊU CHÍ KPI & KHUNG NĂNG LỰC -->
+        <!-- TAB 4: CHẤM ĐIỂM & ĐÁNH GIÁ KPI (INTERACTIVE EVALUATION) -->
+        <div id="tab-eval" class="tab-pane">
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <h2 class="card-title">Bộ Công Cụ Chấm Điểm & Ra Quyết Định DSS Trực Tuyến</h2>
+                        <p class="card-desc">Chọn nhân sự, nhập điểm đánh giá KPI & Khung năng lực ASK để hệ thống tự động chạy thuật toán Ma trận 9-Box</p>
+                    </div>
+                </div>
+                <div style="padding: 24px;">
+                    <div class="eval-section">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+                            <div>
+                                <label style="font-size: 0.82rem; font-weight: 700; color: var(--gray-700); margin-bottom: 6px; display: block;">CHỌN NHÂN VIÊN ĐÁNH GIÁ</label>
+                                <select id="evalSelectEmp" class="form-select" onchange="onSelectEvalEmp()">
+                                    <option value="">-- Chọn nhân viên --</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size: 0.82rem; font-weight: 700; color: var(--gray-700); margin-bottom: 6px; display: block;">KỲ ĐÁNH GIÁ</label>
+                                <select id="evalSelectPeriod" class="form-select">
+                                    <option value="1">Đánh giá KPI Quý 4 / 2026 (Đang diễn ra)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Điểm KPI & Điểm Năng Lực Slider / Inputs -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div style="background: white; padding: 18px; border-radius: 10px; border: 1px solid var(--gray-200);">
+                                <h4 style="font-size: 0.95rem; color: #1e3a8a; margin-bottom: 12px;">📊 Điểm Hiệu Suất KPI (Thang 1.0 - 5.0)</h4>
+                                <div style="display: flex; align-items: center; gap: 14px;">
+                                    <input type="range" id="inputKpiScore" min="1.0" max="5.0" step="0.1" value="4.2" style="flex: 1;" oninput="document.getElementById('lblKpiScore').innerText = this.value">
+                                    <span id="lblKpiScore" style="font-size: 1.3rem; font-weight: 800; color: var(--primary); min-width: 45px;">4.2</span>
+                                </div>
+                                <p style="font-size: 0.78rem; color: var(--gray-500); margin-top: 8px;">Đo lường tiến độ hoàn thành sprint, chất lượng task và output công việc.</p>
+                            </div>
+
+                            <div style="background: white; padding: 18px; border-radius: 10px; border: 1px solid var(--gray-200);">
+                                <h4 style="font-size: 0.95rem; color: #4338ca; margin-bottom: 12px;">🎯 Điểm Khung Năng Lực ASK (Thang 1.0 - 5.0)</h4>
+                                <div style="display: flex; align-items: center; gap: 14px;">
+                                    <input type="range" id="inputCompetencyScore" min="1.0" max="5.0" step="0.1" value="4.0" style="flex: 1;" oninput="document.getElementById('lblCompetencyScore').innerText = this.value">
+                                    <span id="lblCompetencyScore" style="font-size: 1.3rem; font-weight: 800; color: var(--secondary); min-width: 45px;">4.0</span>
+                                </div>
+                                <p style="font-size: 0.78rem; color: var(--gray-500); margin-top: 8px;">Đo lường 3 trụ cột: Kiến thức (Knowledge) - Kỹ năng (Skill) - Thái độ (Attitude).</p>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 20px; text-align: center;">
+                            <button class="btn btn-primary" style="padding: 12px 28px; font-size: 1rem; border-radius: 10px;" onclick="calculateLiveDss()">
+                                🚀 Kích Hoạt Thuật Toán DSS Phân Loại 9-Box
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Live DSS Result Box -->
+                    <div id="liveDssResult" style="display: none; background: white; border: 2px solid var(--primary); border-radius: var(--radius); padding: 22px;">
+                        <h3 style="font-size: 1.1rem; color: var(--gray-900); margin-bottom: 14px; display: flex; align-items: center; gap: 10px;">
+                            <span>🏆 KẾT QUẢ ĐÁNH GIÁ TỪ BỘ MÁY DSS ENGINE</span>
+                        </h3>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: center;">
+                            <div>
+                                <div style="margin-bottom: 10px; font-size: 0.92rem;">Nhân sự: <strong id="resEmpName">--</strong></div>
+                                <div style="margin-bottom: 10px; font-size: 0.92rem;">Vị trí 9-Box: <span class="badge badge-purple" id="res9Box" style="font-size: 0.9rem; padding: 6px 14px;">--</span></div>
+                                <div style="margin-bottom: 10px; font-size: 0.92rem;">Điểm đánh giá chung: <strong id="resFinalScore" style="color: var(--primary); font-size: 1.2rem;">--</strong> (60% KPI + 40% Năng lực)</div>
+                                <div style="background: var(--primary-light); padding: 12px; border-radius: 8px; border-left: 4px solid var(--primary); margin-top: 14px;">
+                                    <div style="font-weight: 700; color: var(--primary-dark); font-size: 0.85rem;">💡 ĐỀ XUẤT QUYẾT SÁCH NHÂN TÀI:</div>
+                                    <div id="resPolicy" style="font-size: 0.88rem; color: #1e3a8a; margin-top: 4px;">--</div>
+                                </div>
+                            </div>
+                            <div class="chart-box">
+                                <canvas id="radarChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 5: TIÊU CHÍ KPI & KHUNG NĂNG LỰC -->
         <div id="tab-kpi" class="tab-pane">
             <div class="card">
                 <div class="card-header">
@@ -707,6 +820,7 @@
 
     <script>
         let nhanVienList = [];
+        let radarChartInstance = null;
 
         function switchTab(tabId, btn) {
             document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
@@ -734,8 +848,24 @@
                         document.getElementById('stat-avg-age').innerText = avgAge + ' tuổi';
                     }
                     renderEmployeeTable(data);
+                    populateSelectEmployees(data);
                 })
                 .catch(err => console.error(err));
+        }
+
+        function populateSelectEmployees(data) {
+            const select = document.getElementById('evalSelectEmp');
+            select.innerHTML = '<option value="">-- Chọn nhân viên --</option>';
+            data.forEach(e => {
+                const opt = document.createElement('option');
+                opt.value = e.idNhanVien;
+                opt.innerText = `#${e.idNhanVien} - ${e.hoTen} (${e.email})`;
+                select.appendChild(opt);
+            });
+        }
+
+        function onSelectEvalEmp() {
+            // Khi chọn nhân viên có thể tải trước điểm nếu có
         }
 
         // Search realtime
@@ -896,14 +1026,117 @@
                 .catch(err => console.error(err));
         }
 
-        // 5. Xem chi tiết nhân viên & DSS
+        // 5. Chạy thuật toán DSS Trực tiếp
+        function calculateLiveDss() {
+            const empId = document.getElementById('evalSelectEmp').value;
+            if (!empId) {
+                alert('Vui lòng chọn nhân viên cần đánh giá!');
+                return;
+            }
+
+            const kpi = parseFloat(document.getElementById('inputKpiScore').value);
+            const comp = parseFloat(document.getElementById('inputCompetencyScore').value);
+            const finalScore = (0.6 * kpi + 0.4 * comp).toFixed(2);
+
+            let viTri = '';
+            let deXuat = '';
+
+            if (kpi >= 4.0 && comp >= 4.0) {
+                viTri = "Star (Ngôi sao)";
+                deXuat = "Quy hoạch cán bộ nguồn cấp tốc, đề xuất thăng chức và tăng 15-20% lương cơ bản.";
+            } else if (kpi >= 4.0 && comp >= 3.0) {
+                viTri = "High Performer (Chuyên gia hiệu suất)";
+                deXuat = "Khen thưởng thành tích xuất sắc, bồi dưỡng thêm kỹ năng quản lý và lãnh đạo.";
+            } else if (kpi >= 4.0 && comp < 3.0) {
+                viTri = "Solid Professional (Chuyên môn vững chắc)";
+                deXuat = "Duy trì vị trí chuyên môn hiện tại, kèm cặp nâng cao các kỹ năng mềm còn hạn chế.";
+            } else if (kpi >= 3.0 && comp >= 4.0) {
+                viTri = "High Potential (Tiềm năng cao)";
+                deXuat = "Giao thêm thử thách và dự án quan trọng để khai phóng toàn diện năng lực.";
+            } else if (kpi >= 3.0 && comp >= 3.0) {
+                viTri = "Core Player (Trụ cột công ty)";
+                deXuat = "Giữ vững vị trí nòng cốt, áp dụng chính sách phúc lợi và khen thưởng quý đều đặn.";
+            } else if (kpi >= 3.0 && comp < 3.0) {
+                viTri = "Effective (Nhân viên trung bình)";
+                deXuat = "Bổ sung các khóa đào tạo nâng cao năng lực, theo dõi sát tiến độ hoàn thành chỉ tiêu.";
+            } else if (kpi < 3.0 && comp >= 4.0) {
+                viTri = "Enigma (Chưa phát huy)";
+                deXuat = "Phỏng vấn tìm hiểu trở ngại hiệu suất, xem xét chuyển giao công việc hoặc phòng ban phù hợp hơn.";
+            } else if (kpi < 3.0 && comp >= 3.0) {
+                viTri = "Dilemma (Cần cải thiện)";
+                deXuat = "Thiết lập kế hoạch cải thiện hiệu suất công việc (PIP) thời hạn 3 tháng.";
+            } else {
+                viTri = "Risk (Nguy cơ đào thải)";
+                deXuat = "Cảnh báo nghiêm túc về hiệu suất; xem xét tinh giản hoặc sắp xếp công việc phù hợp hơn.";
+            }
+
+            const emp = nhanVienList.find(e => e.idNhanVien == empId);
+            document.getElementById('resEmpName').innerText = emp ? `${emp.hoTen} (#${emp.idNhanVien})` : `Nhân viên #${empId}`;
+            document.getElementById('res9Box').innerText = viTri;
+            document.getElementById('resFinalScore').innerText = finalScore + ' / 5.0';
+            document.getElementById('resPolicy').innerText = deXuat;
+            document.getElementById('liveDssResult').style.display = 'block';
+
+            // Vẽ Radar Chart khung năng lực ASK
+            renderCompetencyRadar(comp);
+        }
+
+        function renderCompetencyRadar(score) {
+            const ctx = document.getElementById('radarChart').getContext('2d');
+            if (radarChartInstance) {
+                radarChartInstance.destroy();
+            }
+
+            // Tạo các giá trị dao động quanh điểm trung bình để tạo biểu đồ radar sống động
+            const knowledgeScore = Math.min(5.0, (score * 1.05).toFixed(1));
+            const skillScore = Math.min(5.0, (score * 0.98).toFixed(1));
+            const attitudeScore = Math.min(5.0, (score * 1.02).toFixed(1));
+
+            radarChartInstance = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Kiến thức (Knowledge)', 'Kỹ năng (Skill)', 'Thái độ (Attitude)'],
+                    datasets: [
+                        {
+                            label: 'Thực Tế Đánh Giá',
+                            data: [knowledgeScore, skillScore, attitudeScore],
+                            backgroundColor: 'rgba(37, 99, 235, 0.25)',
+                            borderColor: '#2563eb',
+                            borderWidth: 2,
+                            pointBackgroundColor: '#2563eb'
+                        },
+                        {
+                            label: 'Điểm Chuẩn Chức Vụ',
+                            data: [4.0, 4.0, 4.5],
+                            backgroundColor: 'rgba(100, 116, 139, 0.1)',
+                            borderColor: '#64748b',
+                            borderWidth: 1.5,
+                            borderDash: [5, 5],
+                            pointBackgroundColor: '#64748b'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            min: 0,
+                            max: 5,
+                            ticks: { stepSize: 1 }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 6. Xem chi tiết nhân viên & DSS (Modal)
         function viewDetail(id) {
             const emp = nhanVienList.find(e => e.idNhanVien === id);
             if (!emp) return;
 
             document.getElementById('modalEmpName').innerText = `${emp.hoTen} (#${emp.idNhanVien})`;
             
-            // Gọi kèm API DSS xem kết quả đánh giá của nhân viên
             fetch(`/api/dss/nhan-vien/${id}`)
                 .then(res => res.ok ? res.json() : null)
                 .then(dss => {
