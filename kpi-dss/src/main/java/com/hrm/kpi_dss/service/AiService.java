@@ -1,7 +1,5 @@
 package com.hrm.kpi_dss.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hrm.kpi_dss.entity.DuBaoNghiViecAi;
 import com.hrm.kpi_dss.entity.NhanVien;
 import com.hrm.kpi_dss.repository.DuBaoNghiViecAiRepository;
@@ -17,23 +15,22 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class AiService {
 
     private final DuBaoNghiViecAiRepository duBaoRepository;
     private final NhanVienRepository nhanVienRepository;
-    private final ObjectMapper objectMapper;
     private final HttpClient httpClient;
 
     private static final String AI_SERVICE_URL = "http://localhost:8000/predict";
 
     public AiService(DuBaoNghiViecAiRepository duBaoRepository,
-                     NhanVienRepository nhanVienRepository,
-                     ObjectMapper objectMapper) {
+                     NhanVienRepository nhanVienRepository) {
         this.duBaoRepository = duBaoRepository;
         this.nhanVienRepository = nhanVienRepository;
-        this.objectMapper = objectMapper;
         this.httpClient = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(3))
                 .build();
@@ -82,19 +79,19 @@ public class AiService {
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy nhân viên ID: " + idNhanVien));
 
         try {
-            Map<String, Object> payload = new HashMap<>();
-            payload.put("id_nhan_vien", nv.getIdNhanVien());
-            payload.put("age", nv.getTuoi() != null ? nv.getTuoi() : 30);
-            payload.put("distance_from_home", nv.getKhoangCachDiLam() != null ? nv.getKhoangCachDiLam() : 10);
-            payload.put("education", nv.getTrinhDoHocVan() != null ? nv.getTrinhDoHocVan() : 3);
-            payload.put("total_working_years", nv.getTongNamKinhNghiem() != null ? nv.getTongNamKinhNghiem() : 5);
-            payload.put("years_at_company", nv.getNamTaiCongTy() != null ? nv.getNamTaiCongTy() : 3);
-            payload.put("years_in_current_role", nv.getNamCungChucVu() != null ? nv.getNamCungChucVu() : 2);
-            payload.put("years_since_last_promotion", nv.getNamTuKhiThangChuc() != null ? nv.getNamTuKhiThangChuc() : 1);
-            payload.put("years_with_curr_manager", nv.getNamVoiQuanLyHienTai() != null ? nv.getNamVoiQuanLyHienTai() : 2);
-            payload.put("income_level", 3);
+            int age = nv.getTuoi() != null ? nv.getTuoi() : 30;
+            int distance = nv.getKhoangCachDiLam() != null ? nv.getKhoangCachDiLam() : 10;
+            int education = nv.getTrinhDoHocVan() != null ? nv.getTrinhDoHocVan() : 3;
+            int totalExp = nv.getTongNamKinhNghiem() != null ? nv.getTongNamKinhNghiem() : 5;
+            int yearsAtCompany = nv.getNamTaiCongTy() != null ? nv.getNamTaiCongTy() : 3;
+            int yearsInRole = nv.getNamCungChucVu() != null ? nv.getNamCungChucVu() : 2;
+            int yearsSincePromo = nv.getNamTuKhiThangChuc() != null ? nv.getNamTuKhiThangChuc() : 1;
+            int yearsWithMgr = nv.getNamVoiQuanLyHienTai() != null ? nv.getNamVoiQuanLyHienTai() : 2;
 
-            String requestBody = objectMapper.writeValueAsString(payload);
+            String requestBody = String.format(Locale.US,
+                    "{\"id_nhan_vien\":%d,\"age\":%d,\"distance_from_home\":%d,\"education\":%d,\"total_working_years\":%d,\"years_at_company\":%d,\"years_in_current_role\":%d,\"years_since_last_promotion\":%d,\"years_with_curr_manager\":%d,\"income_level\":3}",
+                    nv.getIdNhanVien(), age, distance, education, totalExp, yearsAtCompany, yearsInRole, yearsSincePromo, yearsWithMgr
+            );
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(AI_SERVICE_URL))
@@ -106,10 +103,10 @@ public class AiService {
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() == 200) {
-                JsonNode root = objectMapper.readTree(response.body());
-                double riskPct = root.path("ty_le_rui_ro").asDouble();
-                String warningLevel = root.path("muc_do_canh_bao").asText();
-                String causes = root.path("nguyen_nhan_chinh").asText();
+                String responseBody = response.body();
+                double riskPct = extractDoubleField(responseBody, "ty_le_rui_ro", 50.0);
+                String warningLevel = extractStringField(responseBody, "muc_do_canh_bao", "MEDIUM");
+                String causes = extractStringField(responseBody, "nguyen_nhan_chinh", "Chưa có thông tin");
 
                 DuBaoNghiViecAi duBao = duBaoRepository.findByIdNhanVien(idNhanVien)
                         .orElse(new DuBaoNghiViecAi());
@@ -127,7 +124,6 @@ public class AiService {
 
         } catch (Exception e) {
             System.err.println("[WARN] Không thể kết nối tới Python AI Service: " + e.getMessage());
-            // Trả về bản ghi hiện tại nếu Python service đang tắt
             return duBaoRepository.findByIdNhanVien(idNhanVien).orElse(null);
         }
     }
@@ -144,5 +140,25 @@ public class AiService {
             if (res != null) count++;
         }
         return count;
+    }
+
+    private double extractDoubleField(String json, String key, double defaultVal) {
+        Pattern pattern = Pattern.compile("\"" + key + "\"\\s*:\\s*([0-9.]+)");
+        Matcher matcher = pattern.matcher(json);
+        if (matcher.find()) {
+            try {
+                return Double.parseDouble(matcher.group(1));
+            } catch (Exception ignored) {}
+        }
+        return defaultVal;
+    }
+
+    private String extractStringField(String json, String key, String defaultVal) {
+        Pattern pattern = Pattern.compile("\"" + key + "\"\\s*:\\s*\"([^\"]*)\"");
+        Matcher matcher = pattern.matcher(json);
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+        return defaultVal;
     }
 }
