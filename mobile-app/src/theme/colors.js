@@ -17,3 +17,4 @@ export const colors = {
   purple: '#8b5cf6',
   purpleLight: '#f5f3ff',
 };
+

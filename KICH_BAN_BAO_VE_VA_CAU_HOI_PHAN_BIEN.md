@@ -112,3 +112,4 @@
 ### ❓ Câu 12: Đồ án này có thể thương mại hóa hoặc áp dụng thực tế cho doanh nghiệp như thế nào?
 > **Trả lời:**  
 > "Dạ thưa Thầy/Cô, hệ thống hoàn toàn có thể triển khai áp dụng thực tế cho các doanh nghiệp vừa và nhỏ (SMEs). Doanh nghiệp có thể tiết kiệm hàng trăm triệu đồng chi phí mua phần mềm HRM ngoại nhập đắt đỏ mà vẫn sở hữu tính năng cao cấp: Ma trận 9-Box đánh giá nhân tài và AI phát hiện sớm nhân sự có nguy cơ nghỉ việc để kịp thời giữ chân."
+

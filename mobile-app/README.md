@@ -49,3 +49,4 @@ npm start
 - **Trên điện thoại thật:** Mở ứng dụng **Expo Go** và quét mã QR hiển thị trên Terminal.
 - **Trên trình duyệt Web:** Nhấn phím **`w`** trên terminal để mở phiên bản Web.
 - **Trên máy ảo Android:** Nhấn phím **`a`** trên terminal.
+
